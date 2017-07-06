@@ -1,3 +1,33 @@
+On iOS, there is a critical crash bug in cordova-plugin-meteor-webapp that can
+be resolved by applying the following patch to the Cordova Xcode project:
+
+From 870957c5dad9d0760f1f1fd6173c2c6695391954 Mon Sep 17 00:00:00 2001
+From: Andrew Wilcox <andrew.wilcox@gmail.com>
+Date: Sat, 14 Jan 2017 13:34:55 -0600
+Subject: [PATCH] Continue running the local web server in the background
+
+Fixes #24.
+---
+ src/ios/WebAppLocalServer.swift | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/ios/WebAppLocalServer.swift b/src/ios/WebAppLocalServer.swift
+index 98ebaba..c746e1b 100644
+--- a/src/ios/WebAppLocalServer.swift
++++ b/src/ios/WebAppLocalServer.swift
+@@ -364,7 +364,8 @@ open class WebAppLocalServer: METPlugin, AssetBundleManagerDelegate {
+
+     let options = [
+       GCDWebServerOption_Port: NSNumber(value: localServerPort as UInt),
+-      GCDWebServerOption_BindToLocalhost: true]
++      GCDWebServerOption_BindToLocalhost: true,
++      GCDWebServerOption_AutomaticallySuspendInBackground: false]
+     try localServer.start(options: options)
+
+     // Set localServerPort to the assigned port, in case it is different
+
+----
+
 By default, this app will attempt to make DDP connections to the server
 every time the user completes a character and moves on to the next. This
 behavior is because the mobile app use a local server to serve static content,
